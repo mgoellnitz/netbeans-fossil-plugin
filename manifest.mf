@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+OpenIDE-Module: de.provocon.netbeans.fossil
+OpenIDE-Module-Localizing-Bundle: de/provocon/netbeans/fossil/Bundle.properties
+OpenIDE-Module-Specification-Version: 0.1
