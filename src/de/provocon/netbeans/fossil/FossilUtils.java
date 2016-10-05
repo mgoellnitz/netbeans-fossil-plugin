@@ -50,6 +50,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 
 /**
@@ -60,6 +61,10 @@ import java.util.logging.Logger;
 public final class FossilUtils {
 
     private static final Logger LOG = Logger.getLogger("de.provocon.netbeans.fossil");
+    private static final Pattern EDITED_PATTERN = Pattern.compile("^EDITED[\t ]+.*");
+    private static final Pattern ADDED_PATTERN = Pattern.compile("^ADDED[\t ]+.*");
+    private static final Pattern REVERT_PATTERN = Pattern.compile("^REVERT[\t ]+.*");
+    private static final Pattern NEW_VERSION_PATTERN = Pattern.compile("^New_Version[\t ]+.*");
 
 
     private FossilUtils() {
@@ -111,7 +116,7 @@ public final class FossilUtils {
     }
 
 
-    public static boolean fossilCommandWithConstantCheck(String[] cmd, String successMarker, File file) {
+    public static boolean fossilCommandWithConstantCheck(String[] cmd, Pattern successMarker, File file) {
         boolean result = false;
         try {
             Process process = Runtime.getRuntime().exec(cmd, null, FossilUtils.getTopmostManagedAncestor(file));
@@ -128,8 +133,8 @@ public final class FossilUtils {
             LOG.log(Level.FINE, "fossilCommandWithConstantCheck() reading contents");
             reader = new BufferedReader(new InputStreamReader(stdout));
             line = reader.readLine();
-            while (line!=null) {
-                result = result||line.indexOf(successMarker)>=0;
+            while (line!=null && !result) {
+                result = result||successMarker.matcher(line).matches();
                 LOG.log(Level.FINE, "fossilCommandWithConstantCheck() {0} {1}", new Object[]{result, line});
                 line = reader.readLine();
             }
@@ -151,7 +156,7 @@ public final class FossilUtils {
             cmd[1] = "status";
             cmd[2] = path;
 
-            result = fossilCommandWithConstantCheck(cmd, "EDITED", file);
+            result = fossilCommandWithConstantCheck(cmd, EDITED_PATTERN, file);
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "checkModified() failed: {0} {1}", new Object[]{ex.getClass().getSimpleName(), ex.getMessage()});
         }
@@ -184,7 +189,7 @@ public final class FossilUtils {
             reader = new BufferedReader(new InputStreamReader(stdout));
             line = reader.readLine();
             while (line!=null) {
-                result = result||file.getPath().indexOf(line)>=0;
+                result = result||file.getPath().contains(line);
                 LOG.log(Level.FINE, "checkUnversioned() {0} {1} {2}", new Object[]{result, file.getPath(), line});
                 line = reader.readLine();
             }
@@ -209,7 +214,7 @@ public final class FossilUtils {
                 cmd[i++] = path;
             }
 
-            result = fossilCommandWithConstantCheck(cmd, "ADDED", FossilUtils.getTopmostManagedAncestor(files.iterator().next()));
+            result = fossilCommandWithConstantCheck(cmd, ADDED_PATTERN, FossilUtils.getTopmostManagedAncestor(files.iterator().next()));
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "add() failed: {0} {1}", new Object[]{ex.getClass().getSimpleName(), ex.getMessage()});
         }
@@ -230,7 +235,7 @@ public final class FossilUtils {
                 cmd[i++] = path;
             }
 
-            result = fossilCommandWithConstantCheck(cmd, "REVERT", FossilUtils.getTopmostManagedAncestor(files.iterator().next()));
+            result = fossilCommandWithConstantCheck(cmd, REVERT_PATTERN, FossilUtils.getTopmostManagedAncestor(files.iterator().next()));
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "revert() failed: {0} {1}", new Object[]{ex.getClass().getSimpleName(), ex.getMessage()});
         }
@@ -253,7 +258,7 @@ public final class FossilUtils {
                 cmd[i++] = path;
             }
 
-            result = fossilCommandWithConstantCheck(cmd, "New_Version", FossilUtils.getTopmostManagedAncestor(files.iterator().next()));
+            result = fossilCommandWithConstantCheck(cmd, NEW_VERSION_PATTERN, FossilUtils.getTopmostManagedAncestor(files.iterator().next()));
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "commit() failed: {0} {1}", new Object[]{ex.getClass().getSimpleName(), ex.getMessage()});
         }
