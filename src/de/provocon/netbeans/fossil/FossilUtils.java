@@ -57,6 +57,8 @@ import java.util.regex.Pattern;
  * Misc utility methods, mostly copied from onm.versioning.util module.
  *
  * @author Maros Sandor
+ * @author Martin Goellnitz
+ * @author Muhammed Yueruerdurmaz
  */
 public final class FossilUtils {
 
