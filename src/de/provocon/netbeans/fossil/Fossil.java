@@ -41,9 +41,6 @@
 package de.provocon.netbeans.fossil;
 
 import java.io.BufferedReader;
-import org.netbeans.modules.versioning.spi.VCSInterceptor;
-import org.netbeans.modules.versioning.spi.VersioningSupport;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
@@ -51,6 +48,8 @@ import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.modules.versioning.spi.VCSInterceptor;
+import org.netbeans.modules.versioning.spi.VersioningSupport;
 
 
 /**
@@ -119,7 +118,7 @@ public class Fossil {
 
 
     public VCSInterceptor getInterceptor() {
-        LOG.warning("getInterceptor()");
+        LOG.fine("getInterceptor()");
         return interceptor;
     }
 
